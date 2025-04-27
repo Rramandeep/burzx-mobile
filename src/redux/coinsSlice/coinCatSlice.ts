@@ -50,8 +50,6 @@ const coinsSlice = createSlice({
         state.catStatus = 'loading';
       })
       .addCase(fetchFeaturedCoinsAction.fulfilled, (state, action) => {
-        console.log('called line 53');
-        console.log(action.payload.data);
         state.catStatus = 'succeeded';
         state.allCoins = JSON.parse(JSON.stringify(action.payload.data));
         const interimData = action.payload.data;

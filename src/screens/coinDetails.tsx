@@ -143,17 +143,22 @@ const CoinDetails: React.FC = () => {
                     ]}>
                     $ {currentPrice}
                   </Text>
-                  <Text
+                  <View
                     style={[
-                      coinCardStyle(priceChangePercentage24h >= 0)
-                        .pricePercentage,
+                      coinCardStyle().pricePercentageView,
                       {
-                        width: screenWidth * 0.13,
+                        width: screenWidth * 0.14,
                       },
                     ]}>
-                    {priceChangePercentage24h >= 0 ? '+' : ''}
-                    {priceChangePercentage24h.toFixed(2)} %
-                  </Text>
+                    <Text
+                      style={[
+                        coinCardStyle(priceChangePercentage24h >= 0)
+                          .pricePercentage,
+                      ]}>
+                      {priceChangePercentage24h >= 0 ? '+' : ''}
+                      {priceChangePercentage24h.toFixed(2)} %
+                    </Text>
+                  </View>
                 </View>
                 <TouchableOpacity
                   onPress={() => {

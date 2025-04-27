@@ -12,6 +12,7 @@ import Text from '../components/text';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import {CommonActions, useNavigation} from '@react-navigation/native';
 import {Colors} from '../constants/colors';
+import {Icon} from 'react-native-paper';
 
 const rnBiometrics = new ReactNativeBiometrics({allowDeviceCredentials: true});
 const screenWidth = Dimensions.get('window').width;
@@ -20,10 +21,12 @@ const BiometricAuthScreen: React.FC = () => {
   const isDarkMode = useColorScheme() === 'dark';
   const navigation = useNavigation();
   const [biometryMessage, setBioMetryMessage] = useState<string>('');
+
   const [isBiometricCancelled, setIsBiometricCancelled] =
     useState<boolean>(false);
   const [isBiometricAvailable, setIsBiometricAvailable] =
     useState<boolean>(true);
+
   const resetToDashBoard = useCallback(() => {
     navigation.dispatch(
       CommonActions.reset({
@@ -97,7 +100,11 @@ const BiometricAuthScreen: React.FC = () => {
   return (
     <View style={styles(isDarkMode).container}>
       <Text style={styles(isDarkMode).mainText}>Use Biometric to log in?</Text>
-      <Image source={require('../assets/images/biometric.png')} />
+      <Image
+        style={styles().biometricImage}
+        resizeMode="cover"
+        source={require('../assets/images/biometric.png')}
+      />
       {isBiometricAvailable && (
         <TouchableOpacity
           style={[styles().Button]}
@@ -110,8 +117,14 @@ const BiometricAuthScreen: React.FC = () => {
         </TouchableOpacity>
       )}
       {Platform.OS === 'ios' && (
-        <TouchableOpacity style={[styles().Button]} onPress={resetToDashBoard}>
-          <Text style={styles().loginTextColor}>Login</Text>
+        <TouchableOpacity
+          style={styles().navForward}
+          onPress={resetToDashBoard}>
+          <Icon
+            source={'arrow-right'}
+            color={isDarkMode ? Colors.white : Colors.black}
+            size={30}
+          />
         </TouchableOpacity>
       )}
 
@@ -139,13 +152,24 @@ const styles = (isDarkMode?: boolean) =>
     container: {
       flex: 1,
       justifyContent: 'center',
-      padding: 24,
       backgroundColor: isDarkMode ? Colors.black : Colors.white,
+    },
+    biometricImage: {
+      height: screenWidth * 1.4,
+      width: screenWidth,
+    },
+    navForward: {
+      position: 'absolute',
+      top: 0,
+      right: screenWidth * 0.02,
     },
     loginTextColor: {
       color: '#000',
     },
     mainText: {
+      position: 'absolute',
+      left: screenWidth * 0.05,
+      top: Platform.OS === 'android' ? screenWidth * 0.1 : 0,
       width: screenWidth * 0.54,
       color: isDarkMode ? Colors.white : Colors.black,
       fontSize: screenWidth * 0.08,
@@ -162,6 +186,8 @@ const styles = (isDarkMode?: boolean) =>
       backgroundColor: Colors.cardGrey,
     },
     Button: {
+      width: screenWidth * 0.9,
+      alignSelf: 'center',
       elevation: 10,
       paddingVertical: '3%',
       backgroundColor: Colors.green,

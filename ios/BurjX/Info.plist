@@ -50,5 +50,13 @@
 	<false/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>We need Face ID to authenticate you.</string>
+	<key>UIAppFonts</key>
+	<array>
+  	<string>MaterialCommunityIcons.ttf</string>
+  	<string>MaterialIcons.ttf</string>
+  	<string>FontAwesome.ttf</string>
+  	<string>Feather.ttf</string>
+  	<!-- You can add more if needed -->
+	</array>
 </dict>
 </plist>

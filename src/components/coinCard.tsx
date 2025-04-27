@@ -1,11 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {
   View,
   Image,
   Dimensions,
   TouchableOpacity,
   useColorScheme,
-  InteractionManager,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {LineChart, Grid} from 'react-native-svg-charts';
@@ -71,12 +70,20 @@ const CardItem: React.FC<ChildProps> = React.memo(({item, isSubCategory}) => {
 
       {isSubCategory && <LineChartComponent item={item} />}
       {!isSubCategory && (
-        <View style={styles().conditionalView}>
-          <Text
-            style={styles(item.priceChangePercentage24h >= 0).conditionalText}>
-            {item.priceChangePercentage24h >= 0 ? '+' : ''}
-            {item.priceChangePercentage24h.toFixed(2)}%
-          </Text>
+        <View style={[styles().conditionalView]}>
+          <View
+            style={[
+              styles().pricePercentageView,
+              styles().pricePercentageViewExt,
+            ]}>
+            <Text
+              style={
+                styles(item.priceChangePercentage24h >= 0).conditionalText
+              }>
+              {item.priceChangePercentage24h >= 0 ? '+' : ''}
+              {item.priceChangePercentage24h.toFixed(2)}%
+            </Text>
+          </View>
           <LineChartComponent item={item} />
         </View>
       )}
@@ -88,14 +95,16 @@ const CardItem: React.FC<ChildProps> = React.memo(({item, isSubCategory}) => {
           $ {item.currentPrice}
         </Text>
         {isSubCategory && (
-          <Text
-            style={
-              styles(isSubCategory && item.priceChangePercentage24h >= 0)
-                .pricePercentage
-            }>
-            {item.priceChangePercentage24h >= 0 ? '+' : ''}
-            {item.priceChangePercentage24h.toFixed(2)}%
-          </Text>
+          <View style={styles().pricePercentageView}>
+            <Text
+              style={
+                styles(isSubCategory && item.priceChangePercentage24h >= 0)
+                  .pricePercentage
+              }>
+              {item.priceChangePercentage24h >= 0 ? '+' : ''}
+              {item.priceChangePercentage24h.toFixed(2)}%
+            </Text>
+          </View>
         )}
       </View>
     </TouchableOpacity>

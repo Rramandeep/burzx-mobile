@@ -218,7 +218,7 @@ const styles = (custom?: boolean) =>
     },
     headerText: {
       paddingVertical: 10,
-      paddingHorizontal: 20,
+      paddingHorizontal: screenWidth * 0.05,
       borderBottomWidth: 1,
       borderBottomColor: Colors.green,
       marginHorizontal: screenWidth * 0.05,
@@ -234,7 +234,7 @@ const styles = (custom?: boolean) =>
       borderWidth: 0,
     },
     searchContent: {
-      width: screenWidth * 0.32,
+      width: screenWidth * 0.33,
       borderRadius: 20,
     },
     flashListContent: {

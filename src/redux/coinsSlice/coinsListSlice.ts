@@ -1,6 +1,6 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import {getCoins} from '../../services/coinsService';
-import {TLineChartDataProp, TLineChartPoint} from 'react-native-wagmi-charts';
+import {TLineChartPoint} from 'react-native-wagmi-charts';
 
 interface Coin {
   productId: number;

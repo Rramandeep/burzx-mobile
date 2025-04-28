@@ -110,67 +110,67 @@ const CoinDetails: React.FC = () => {
         resizeMode="stretch"
         height={screenHeight * 0.7}
         source={require('../assets/images/detailBg.png')}>
-        {status === 'pending ' ? (
-          <ActivityIndicator size={30} />
+        <View style={styles().headerContainer}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles().navButton}>
+            <Image source={require('../assets/images/navBack.png')} />
+          </TouchableOpacity>
+          <View style={styles().headerIconContainer}>
+            <Image
+              height={30}
+              width={30}
+              source={{uri: image}}
+              loadingIndicatorSource={image}
+            />
+            <Text style={styles().headerTitle}>{name}</Text>
+            <Text>({symbol.toUpperCase()})</Text>
+          </View>
+        </View>
+        {status === 'loading' ? (
+          <View style={styles().loadingContainer}>
+            <ActivityIndicator size={30} />
+          </View>
         ) : (
           <>
-            <View>
-              <View style={styles().headerContainer}>
-                <TouchableOpacity
-                  onPress={() => navigation.goBack()}
-                  style={styles().navButton}>
-                  <Image source={require('../assets/images/navBack.png')} />
-                </TouchableOpacity>
-                <View style={styles().headerIconContainer}>
-                  <Image
-                    height={30}
-                    width={30}
-                    source={{uri: image}}
-                    loadingIndicatorSource={image}
-                  />
-                  <Text style={styles().headerTitle}>{name}</Text>
-                  <Text>({symbol.toUpperCase()})</Text>
-                </View>
-              </View>
-              <View style={styles().priceContainer}>
-                <View>
+            <View style={styles().priceContainer}>
+              <View>
+                <Text
+                  style={[
+                    coinCardStyle().priceView,
+                    {
+                      fontSize: coinCardStyle().pricePercentage.fontSize * 2,
+                    },
+                  ]}>
+                  $ {currentPrice}
+                </Text>
+                <View
+                  style={[
+                    coinCardStyle().pricePercentageView,
+                    {
+                      width: screenWidth * 0.14,
+                    },
+                  ]}>
                   <Text
                     style={[
-                      coinCardStyle().priceView,
-                      {
-                        fontSize: coinCardStyle().pricePercentage.fontSize * 2,
-                      },
+                      coinCardStyle(priceChangePercentage24h >= 0)
+                        .pricePercentage,
                     ]}>
-                    $ {currentPrice}
+                    {priceChangePercentage24h >= 0 ? '+' : ''}
+                    {priceChangePercentage24h.toFixed(2)} %
                   </Text>
-                  <View
-                    style={[
-                      coinCardStyle().pricePercentageView,
-                      {
-                        width: screenWidth * 0.14,
-                      },
-                    ]}>
-                    <Text
-                      style={[
-                        coinCardStyle(priceChangePercentage24h >= 0)
-                          .pricePercentage,
-                      ]}>
-                      {priceChangePercentage24h >= 0 ? '+' : ''}
-                      {priceChangePercentage24h.toFixed(2)} %
-                    </Text>
-                  </View>
                 </View>
-                <TouchableOpacity
-                  onPress={() => {
-                    setSelectedChart(prev => (prev === 'bar' ? 'line' : 'bar'));
-                  }}>
-                  <Icon
-                    source={`chart-${selectedChart === 'bar' ? 'line' : 'bar'}`}
-                    size={25}
-                    color="red"
-                  />
-                </TouchableOpacity>
               </View>
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedChart(prev => (prev === 'bar' ? 'line' : 'bar'));
+                }}>
+                <Icon
+                  source={`chart-${selectedChart === 'bar' ? 'line' : 'bar'}`}
+                  size={25}
+                  color="red"
+                />
+              </TouchableOpacity>
             </View>
             <View style={styles().chartContainer}>
               {selectedChart === 'bar' ? (
@@ -183,7 +183,7 @@ const CoinDetails: React.FC = () => {
                       <CandlestickChart.Tooltip
                         style={styles().candleChartStyle}
                         textStyle={{
-                          color: '#fff',
+                          color: Colors.white,
                         }}
                       />
                     </CandlestickChart.Crosshair>
@@ -238,6 +238,12 @@ const styles = (custom?: boolean | string, isDarkMode?: boolean) =>
       color: '#fff',
       fontSize: screenWidth * 0.04,
       paddingHorizontal: 2,
+    },
+    loadingContainer: {
+      position: 'absolute',
+      height: screenHeight,
+      justifyContent: 'center',
+      alignSelf: 'center',
     },
     candleChartStyle: {
       backgroundColor: 'black',

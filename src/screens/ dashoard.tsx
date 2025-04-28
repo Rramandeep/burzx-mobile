@@ -11,7 +11,12 @@ import {
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {FlashList} from '@shopify/flash-list';
-import {CoinsState, fetchCoins} from '../redux/coinsSlice/coinsListSlice';
+import {
+  coinsFilter,
+  coinsReset,
+  CoinsState,
+  fetchCoins,
+} from '../redux/coinsSlice/coinsListSlice';
 import CardItem from '../components/coinCard';
 import {ActivityIndicator, TextInput} from 'react-native-paper';
 import Text from '../components/text';
@@ -27,6 +32,7 @@ const screenHeight = Dimensions.get('window').height;
 
 const Dashboard: React.FC = () => {
   const isDarkMode = useColorScheme() === 'dark';
+  const [coinsSearchText, setCoinsSearchText] = useState<string>('');
   const dispatch = useDispatch<AppDispatch>();
   const {coins, status, hasMoreData, totalData}: CoinsState = useSelector(
     (state: RootState) => state.coins,
@@ -41,11 +47,6 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     dispatch(fetchCoins(page));
   }, [dispatch, page]);
-
-  useEffect(() => {
-    console.log('ispending', topGainerCoins);
-    console.log(topGainerCoins);
-  }, [topGainerCoins, topLooserCoins]);
 
   useEffect(() => {
     if (totalData && topMarketCapCoins.length === 0) {
@@ -96,16 +97,42 @@ const Dashboard: React.FC = () => {
   );
 
   const handleOnEndReached = () => {
-    if (hasMoreData) {
+    if (hasMoreData && coinsSearchText.length === 0) {
       setPage(prev => prev + 1);
     }
   };
+
+  // const searchCoins = (textToSearch: string) => {
+  //   setCoinsSearchText(textToSearch);
+  //   let searchTimer = null;
+  //   let resetTimer = null;
+  //   if (resetTimer) {
+  //     clearTimeout(resetTimer);
+  //   }
+  //   if (searchTimer) {
+  //     clearTimeout(searchTimer);
+  //   }
+  //   if (textToSearch.length === 0) {
+  //     resetTimer = setTimeout(() => {
+  //       dispatch(coinsReset());
+  //     }, 1000);
+  //     return;
+  //   }
+  //   searchTimer = setTimeout(() => {
+  //     startTransition(() => {
+  //       dispatch(coinsFilter(textToSearch));
+  //     });
+  //   }, 1500);
+  // };
 
   const renderAllCoins = () => (
     <View style={styles(isDarkMode).allCoinsContainer}>
       <View style={styles(isDarkMode).headerContainer}>
         <Text style={styles(isDarkMode).headerText}>All Coins</Text>
         <TextInput
+          // onChangeText={text => {
+          //   searchCoins(text);
+          // }}
           style={styles(isDarkMode).searchInput}
           outlineStyle={styles(isDarkMode).searchOutline}
           contentStyle={styles(isDarkMode).searchContent}
@@ -184,11 +211,11 @@ const Dashboard: React.FC = () => {
   );
 };
 
-const styles = (custom?: boolean) =>
+const styles = (isDarkMode?: boolean) =>
   StyleSheet.create({
     screenContainer: {
       flex: 1,
-      backgroundColor: custom ? Colors.black : 'transparent',
+      backgroundColor: isDarkMode ? Colors.black : 'transparent',
     },
     tabHeader: {
       height: screenHeight * 0.065,
@@ -227,13 +254,14 @@ const styles = (custom?: boolean) =>
     searchInput: {
       height: 10,
       marginLeft: screenWidth * 0.1,
-      backgroundColor: custom ? Colors.cardGrey : '#e0e0e0',
+      backgroundColor: isDarkMode ? Colors.cardGrey : '#e0e0e0',
     },
     searchOutline: {
       borderRadius: 50,
       borderWidth: 0,
     },
     searchContent: {
+      color: isDarkMode ? Colors.white : Colors.cardGrey,
       width: screenWidth * 0.33,
       borderRadius: 20,
     },
@@ -243,7 +271,7 @@ const styles = (custom?: boolean) =>
     },
     tabBar: {
       paddingLeft: screenWidth * 0.05,
-      backgroundColor: custom ? Colors.black : '#fff',
+      backgroundColor: isDarkMode ? Colors.black : '#fff',
       height: screenHeight * 0.055,
       borderBottomWidth: 0.5,
       color: Colors.cardGrey,
@@ -264,7 +292,7 @@ const styles = (custom?: boolean) =>
       marginLeft: 4,
       fontSize: screenWidth * 0.04,
       fontWeight: 'bold',
-      color: custom ? Colors.white : Colors.black,
+      color: isDarkMode ? Colors.white : Colors.black,
     },
   });
 

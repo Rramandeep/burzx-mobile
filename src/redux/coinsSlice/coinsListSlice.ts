@@ -1,4 +1,4 @@
-import {createSlice, createAsyncThunk, current} from '@reduxjs/toolkit';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import {getCoins} from '../../services/coinsService';
 import {TLineChartPoint} from 'react-native-wagmi-charts';
 
@@ -43,21 +43,7 @@ const initialState: CoinsState = {
 const coinsSlice = createSlice({
   name: 'coins',
   initialState,
-  reducers: {
-    coinsFilter: (state, action) => {
-      state.status = 'loading';
-      const interimData = state.allCoins.filter(item =>
-        item.name.toLowerCase().includes(action.payload.toLowerCase()),
-      );
-      state.coins = interimData;
-      state.status = 'succeeded';
-    },
-    coinsReset: state => {
-      state.status = 'loading';
-      state.coins = JSON.parse(JSON.stringify(state.allCoins));
-      state.status = 'succeeded';
-    },
-  },
+  reducers: {},
   extraReducers: builder => {
     builder
       .addCase(fetchCoins.pending, state => {
@@ -77,8 +63,6 @@ const coinsSlice = createSlice({
       });
   },
 });
-
-export const {coinsFilter, coinsReset} = coinsSlice.actions;
 
 export default coinsSlice.reducer;
 

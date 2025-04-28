@@ -89,7 +89,8 @@ const BiometricAuthScreen: React.FC = () => {
     rnBiometrics.createKeys().then(resultObject => {
       const {publicKey} = resultObject;
       if (publicKey) {
-        setBioMetryMessage('Biometric setup is done.');
+        setIsBiometricCancelled(true);
+        setBioMetryMessage('Biometric setup is done. pls Login.');
         setTimeout(() => {
           setBioMetryMessage('');
         }, 3000);

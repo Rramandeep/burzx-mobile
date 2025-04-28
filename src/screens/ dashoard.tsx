@@ -8,15 +8,11 @@ import {
   FlatList,
   useColorScheme,
   Image,
+  Keyboard,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {FlashList} from '@shopify/flash-list';
-import {
-  coinsFilter,
-  coinsReset,
-  CoinsState,
-  fetchCoins,
-} from '../redux/coinsSlice/coinsListSlice';
+import {Coin, CoinsState, fetchCoins} from '../redux/coinsSlice/coinsListSlice';
 import CardItem from '../components/coinCard';
 import {ActivityIndicator, TextInput} from 'react-native-paper';
 import Text from '../components/text';
@@ -32,7 +28,9 @@ const screenHeight = Dimensions.get('window').height;
 
 const Dashboard: React.FC = () => {
   const isDarkMode = useColorScheme() === 'dark';
+  const [allCoins, setAllCoins] = useState<Coin[]>([]);
   const [coinsSearchText, setCoinsSearchText] = useState<string>('');
+  const searchTextInputRef = useRef<any>(null);
   const dispatch = useDispatch<AppDispatch>();
   const {coins, status, hasMoreData, totalData}: CoinsState = useSelector(
     (state: RootState) => state.coins,
@@ -40,13 +38,32 @@ const Dashboard: React.FC = () => {
   const {topMarketCapCoins, topGainerCoins, topLooserCoins}: CoinsCatState =
     useSelector((state: RootState) => state.coinsCategory);
   const [page, setPage] = useState(1);
-  const [selectedTab, setSelectedTab] = useState<string>('Featured');
+  const [selectedTab, setSelectedTab] = useState<unknown>('Featured');
   const flatListRef = useRef<FlatList | null>(null);
   const scrollViewRef = useRef<ScrollView | null>(null);
 
   useEffect(() => {
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        if (searchTextInputRef.current) {
+          searchTextInputRef.current.blur();
+        }
+      },
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
+  useEffect(() => {
     dispatch(fetchCoins(page));
   }, [dispatch, page]);
+
+  useEffect(() => {
+    setAllCoins(coins);
+  }, [coins]);
 
   useEffect(() => {
     if (totalData && topMarketCapCoins.length === 0) {
@@ -85,7 +102,6 @@ const Dashboard: React.FC = () => {
             ? topGainerCoins
             : topLooserCoins
         }
-        // data={[]}
         contentContainerStyle={styles(isDarkMode).categoryContent}
         showsHorizontalScrollIndicator={false}
         horizontal
@@ -97,42 +113,44 @@ const Dashboard: React.FC = () => {
   );
 
   const handleOnEndReached = () => {
-    if (hasMoreData && coinsSearchText.length === 0) {
+    if (
+      hasMoreData &&
+      coinsSearchText.length === 0 &&
+      !searchTextInputRef.current.focus()
+    ) {
       setPage(prev => prev + 1);
     }
   };
 
-  // const searchCoins = (textToSearch: string) => {
-  //   setCoinsSearchText(textToSearch);
-  //   let searchTimer = null;
-  //   let resetTimer = null;
-  //   if (resetTimer) {
-  //     clearTimeout(resetTimer);
-  //   }
-  //   if (searchTimer) {
-  //     clearTimeout(searchTimer);
-  //   }
-  //   if (textToSearch.length === 0) {
-  //     resetTimer = setTimeout(() => {
-  //       dispatch(coinsReset());
-  //     }, 1000);
-  //     return;
-  //   }
-  //   searchTimer = setTimeout(() => {
-  //     startTransition(() => {
-  //       dispatch(coinsFilter(textToSearch));
-  //     });
-  //   }, 1500);
-  // };
+  const searchCoins = (textToSearch: string) => {
+    setCoinsSearchText(textToSearch);
+    let searchTimer = null;
+    if (searchTimer) {
+      clearTimeout(searchTimer);
+    }
+    if (textToSearch.length === 0) {
+      setAllCoins(coins);
+      return;
+    }
+    searchTimer = setTimeout(() => {
+      startTransition(() => {
+        const interimData = coins.filter(item =>
+          item.name.toLowerCase().includes(textToSearch.toLowerCase()),
+        );
+        setAllCoins(interimData);
+      });
+    }, 1500);
+  };
 
   const renderAllCoins = () => (
     <View style={styles(isDarkMode).allCoinsContainer}>
       <View style={styles(isDarkMode).headerContainer}>
         <Text style={styles(isDarkMode).headerText}>All Coins</Text>
         <TextInput
-          // onChangeText={text => {
-          //   searchCoins(text);
-          // }}
+          ref={searchTextInputRef}
+          onChangeText={text => {
+            searchCoins(text);
+          }}
           style={styles(isDarkMode).searchInput}
           outlineStyle={styles(isDarkMode).searchOutline}
           contentStyle={styles(isDarkMode).searchContent}
@@ -151,7 +169,7 @@ const Dashboard: React.FC = () => {
       <FlashList
         ListEmptyComponent={<ActivityIndicator size={30} />}
         estimatedItemSize={100}
-        data={coins}
+        data={allCoins}
         contentContainerStyle={styles(isDarkMode).flashListContent}
         showsHorizontalScrollIndicator={false}
         renderItem={({item}) => <CardItem isSubCategory={false} item={item} />}

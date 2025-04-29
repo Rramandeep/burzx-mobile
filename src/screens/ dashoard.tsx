@@ -116,7 +116,7 @@ const Dashboard: React.FC = () => {
     if (
       hasMoreData &&
       coinsSearchText.length === 0 &&
-      !searchTextInputRef.current.focus()
+      !searchTextInputRef.current.isFocused()
     ) {
       setPage(prev => prev + 1);
     }

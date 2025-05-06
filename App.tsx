@@ -7,13 +7,8 @@
 import 'react-native-reanimated';
 import React from 'react';
 import {Provider} from 'react-redux';
-import {
-  StatusBar,
-  StyleSheet,
-  SafeAreaView,
-  useColorScheme,
-  View,
-} from 'react-native';
+import {StatusBar, StyleSheet, useColorScheme, View} from 'react-native';
+import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import {enableScreens} from 'react-native-screens';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
@@ -27,21 +22,23 @@ function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
-    <Provider store={store}>
+    <SafeAreaProvider>
       <SafeAreaView style={[styles(isDarkMode).safeArea]}>
-        <NavigationContainer>
-          <GestureHandlerRootView>
-            <StatusBar
-              barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-              backgroundColor={isDarkMode ? Colors.black : Colors.white}
-            />
-            <View style={[styles().container]}>
-              <AppNavigator />
-            </View>
-          </GestureHandlerRootView>
-        </NavigationContainer>
+        <Provider store={store}>
+          <NavigationContainer>
+            <GestureHandlerRootView>
+              <StatusBar
+                barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+                backgroundColor={isDarkMode ? Colors.black : Colors.white}
+              />
+              <View style={[styles().container]}>
+                <AppNavigator />
+              </View>
+            </GestureHandlerRootView>
+          </NavigationContainer>
+        </Provider>
       </SafeAreaView>
-    </Provider>
+    </SafeAreaProvider>
   );
 }
 

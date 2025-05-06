@@ -28,7 +28,7 @@ const screenHeight = Dimensions.get('window').height;
 
 const Dashboard: React.FC = () => {
   const isDarkMode = useColorScheme() === 'dark';
-  const [allCoins, setAllCoins] = useState<Coin[]>([]);
+  const [searchedCoins, setSearchedCoins] = useState<Coin[]>([]);
   const [coinsSearchText, setCoinsSearchText] = useState<string>('');
   const searchTextInputRef = useRef<any>(null);
   const dispatch = useDispatch<AppDispatch>();
@@ -60,10 +60,6 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     dispatch(fetchCoins(page));
   }, [dispatch, page]);
-
-  useEffect(() => {
-    setAllCoins(coins);
-  }, [coins]);
 
   useEffect(() => {
     if (totalData && topMarketCapCoins.length === 0) {
@@ -115,7 +111,7 @@ const Dashboard: React.FC = () => {
   const handleOnEndReached = () => {
     if (
       hasMoreData &&
-      coinsSearchText.length === 0 &&
+      searchedCoins.length === 0 &&
       !searchTextInputRef.current.isFocused()
     ) {
       setPage(prev => prev + 1);
@@ -123,23 +119,17 @@ const Dashboard: React.FC = () => {
   };
 
   const searchCoins = (textToSearch: string) => {
-    setCoinsSearchText(textToSearch);
-    let searchTimer = null;
-    if (searchTimer) {
-      clearTimeout(searchTimer);
-    }
     if (textToSearch.length === 0) {
-      setAllCoins(coins);
+      setSearchedCoins([]);
       return;
     }
-    searchTimer = setTimeout(() => {
-      startTransition(() => {
-        const interimData = coins.filter(item =>
-          item.name.toLowerCase().includes(textToSearch.toLowerCase()),
-        );
-        setAllCoins(interimData);
-      });
-    }, 1500);
+    startTransition(() => {
+      setCoinsSearchText(textToSearch);
+      const interimData = coins.filter(item =>
+        item.name.toLowerCase().includes(textToSearch.toLowerCase()),
+      );
+      setSearchedCoins(interimData);
+    });
   };
 
   const renderAllCoins = () => (
@@ -148,6 +138,7 @@ const Dashboard: React.FC = () => {
         <Text style={styles(isDarkMode).headerText}>All Coins</Text>
         <TextInput
           ref={searchTextInputRef}
+          value={coinsSearchText}
           onChangeText={text => {
             searchCoins(text);
           }}
@@ -167,9 +158,10 @@ const Dashboard: React.FC = () => {
         />
       </View>
       <FlashList
+        showsVerticalScrollIndicator={false}
         ListEmptyComponent={<ActivityIndicator size={30} />}
         estimatedItemSize={100}
-        data={allCoins}
+        data={searchedCoins.length > 0 ? searchedCoins : coins}
         contentContainerStyle={styles(isDarkMode).flashListContent}
         showsHorizontalScrollIndicator={false}
         renderItem={({item}) => <CardItem isSubCategory={false} item={item} />}

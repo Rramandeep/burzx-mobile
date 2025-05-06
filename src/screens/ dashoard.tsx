@@ -29,6 +29,7 @@ const screenHeight = Dimensions.get('window').height;
 const Dashboard: React.FC = () => {
   const isDarkMode = useColorScheme() === 'dark';
   const [searchedCoins, setSearchedCoins] = useState<Coin[]>([]);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
   const [coinsSearchText, setCoinsSearchText] = useState<string>('');
   const searchTextInputRef = useRef<any>(null);
   const dispatch = useDispatch<AppDispatch>();
@@ -119,16 +120,18 @@ const Dashboard: React.FC = () => {
   };
 
   const searchCoins = (textToSearch: string) => {
+    setCoinsSearchText(textToSearch);
     if (textToSearch.length === 0) {
       setSearchedCoins([]);
       return;
     }
+    setIsSearching(true);
     startTransition(() => {
-      setCoinsSearchText(textToSearch);
       const interimData = coins.filter(item =>
         item.name.toLowerCase().includes(textToSearch.toLowerCase()),
       );
       setSearchedCoins(interimData);
+      setIsSearching(false);
     });
   };
 
@@ -138,7 +141,6 @@ const Dashboard: React.FC = () => {
         <Text style={styles(isDarkMode).headerText}>All Coins</Text>
         <TextInput
           ref={searchTextInputRef}
-          value={coinsSearchText}
           onChangeText={text => {
             searchCoins(text);
           }}
@@ -159,9 +161,19 @@ const Dashboard: React.FC = () => {
       </View>
       <FlashList
         showsVerticalScrollIndicator={false}
-        ListEmptyComponent={<ActivityIndicator size={30} />}
+        ListEmptyComponent={
+          !isSearching && searchedCoins.length === 0 && status !== 'loading' ? (
+            <Text style={styles().noDataText}>No Coin Found.</Text>
+          ) : (
+            <ActivityIndicator size={30} />
+          )
+        }
         estimatedItemSize={100}
-        data={searchedCoins.length > 0 ? searchedCoins : coins}
+        data={
+          searchedCoins.length > 0 || coinsSearchText.length > 0
+            ? searchedCoins
+            : coins
+        }
         contentContainerStyle={styles(isDarkMode).flashListContent}
         showsHorizontalScrollIndicator={false}
         renderItem={({item}) => <CardItem isSubCategory={false} item={item} />}
@@ -202,13 +214,7 @@ const Dashboard: React.FC = () => {
                     : require('../assets/images/flag.png')
                 }
               />
-              <Text
-                style={[
-                  styles(isDarkMode).tabText,
-                  {
-                    opacity: selectedTab === tab ? 1 : 0.4,
-                  },
-                ]}>
+              <Text style={[styles(isDarkMode, selectedTab === tab).tabText]}>
                 {tab}
               </Text>
             </TouchableOpacity>
@@ -221,7 +227,7 @@ const Dashboard: React.FC = () => {
   );
 };
 
-const styles = (isDarkMode?: boolean) =>
+const styles = (isDarkMode?: boolean, custom?: boolean) =>
   StyleSheet.create({
     screenContainer: {
       flex: 1,
@@ -299,10 +305,14 @@ const styles = (isDarkMode?: boolean) =>
       borderBottomColor: Colors.green,
     },
     tabText: {
+      opacity: custom ? 1 : 0.4,
       marginLeft: 4,
       fontSize: screenWidth * 0.04,
       fontWeight: 'bold',
       color: isDarkMode ? Colors.white : Colors.black,
+    },
+    noDataText: {
+      alignSelf: 'center',
     },
   });
 
